@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:app_manager/core/di/di_container.dart';
+import 'package:app_manager/core/services/snack_bar_service.dart';
 import 'screens/splash_screen.dart';
 import 'screens/login_screen.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await initDependencyInjections();
   runApp(const MyApp());
 }
 
@@ -15,6 +19,7 @@ class MyApp extends StatelessWidget {
       debugShowMaterialGrid: false,
       debugShowCheckedModeBanner: false,
       title: 'App Manager',
+      scaffoldMessengerKey: SnackBarService.scaffoldKey,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
