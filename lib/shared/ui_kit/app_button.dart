@@ -69,7 +69,7 @@ class _AppButtonState extends State<AppButton> {
                   : AppColors.buttonDisabled,
               disabledForegroundColor: widget.primaryBgWhenDisabled
                   ? fgColor
-                  : Theme.of(context).disabledColor,
+                  : AppColors.textSecondary.withValues(alpha: 0.95),
               elevation: 0,
               padding: widget.padding,
               shape: RoundedRectangleBorder(

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:app_manager/core/di/di_container.dart';
 import 'package:app_manager/core/services/snack_bar_service.dart';
-import 'screens/splash_screen.dart';
-import 'screens/login_screen.dart';
+import 'package:app_manager/theme/app_theme.dart';
+import 'package:app_manager/core/navigation/app_router_config.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -15,20 +15,14 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    final appRouterConfig = getIt<AppRouterConfig>();
+    return MaterialApp.router(
       debugShowMaterialGrid: false,
       debugShowCheckedModeBanner: false,
       title: 'App Manager',
       scaffoldMessengerKey: SnackBarService.scaffoldKey,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-        useMaterial3: true,
-      ),
-      initialRoute: '/',
-      routes: {
-        '/': (context) => const SplashScreen(),
-        '/login': (context) => const LoginScreen(),
-      },
+      theme: AppThemeData.lightTheme,
+      routerConfig: appRouterConfig.router,
     );
   }
 }

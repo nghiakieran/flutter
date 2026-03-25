@@ -1,11 +1,9 @@
 class AppRoutes {
   // Splash / auth flow
   static const String splash = '/splash';
-  static const String onboard = '/onboard';
   static const String login = '/login';
   static const String register = '/register';
   static const String verifyOtp = '/auth/verify-otp';
-  static const String setupPassword = '/auth/setup-password';
   static const String forgotPassword = '/auth/forgot-password';
   static const String resetPassword = '/auth/reset-password';
 

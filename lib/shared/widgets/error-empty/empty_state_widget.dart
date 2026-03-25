@@ -9,18 +9,20 @@ class EmptyStateWidget extends StatelessWidget {
     this.message,
     required this.icon,
     this.action,
+    this.padding = const EdgeInsets.all(32),
   });
 
   final IconData icon;
   final String title;
   final String? message;
   final Widget? action;
+  final EdgeInsets padding;
 
   @override
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(32),
+        padding: padding,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [

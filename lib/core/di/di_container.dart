@@ -9,6 +9,7 @@ import 'package:app_manager/core/services/force_update_notifier.dart';
 import 'package:app_manager/core/services/system_error_retry_registry.dart';
 import 'package:app_manager/core/services/system_error_notifier.dart';
 import 'package:app_manager/core/navigation/app_router_config.dart';
+import 'package:app_manager/features/auth/data/repositories/auth_repository.dart';
 
 final getIt = GetIt.instance;
 
@@ -51,6 +52,12 @@ Future<void> initDependencyInjections() async {
   if (!getIt.isRegistered<AppRouterConfig>()) {
     getIt.registerLazySingleton<AppRouterConfig>(
       () => AppRouterConfig(connectivityService: getIt<ConnectivityService>()),
+    );
+  }
+
+  if (!getIt.isRegistered<IAuthRepository>()) {
+    getIt.registerLazySingleton<IAuthRepository>(
+      () => AuthRepository(getIt<ApiClient>()),
     );
   }
 

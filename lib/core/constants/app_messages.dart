@@ -1,7 +1,7 @@
 class AppMessages {
   AppMessages._();
 
-  static const String systemError = 'System error';
-  static const String networkError = 'Network error';
-  static const String unexpectedError = 'Unexpected error';
+  static const String systemError = 'Lỗi hệ thống';
+  static const String networkError = 'Lỗi mạng';
+  static const String unexpectedError = 'Lỗi không mong đợi';
 }

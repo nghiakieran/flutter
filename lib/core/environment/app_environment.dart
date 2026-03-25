@@ -14,11 +14,13 @@ class AppEnvironment {
 
   static String get apiBaseUrl {
     if (current == AppEnvironmentName.prod) {
-      return 'https://example.com';
+      return 'https://api.example.com';
     }
     if (current == AppEnvironmentName.testing) {
-      return 'https://example.com';
+      return 'https://test-api.example.com';
     }
-    return 'https://example.com';
+    // Android emulator: http://10.0.2.2:5000
+    // iOS simulator/Localhost: http://localhost:5000
+    return 'http://localhost:5000';
   }
 }
