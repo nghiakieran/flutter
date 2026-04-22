@@ -76,7 +76,7 @@ class _LoginPageState extends State<LoginPage> {
           if (!mounted) return;
           getIt<ApiClient>().setToken(token);
         }
-        goRoute(context, AppRoutes.home);
+        goRoute(context, AppRoutes.adminDashboard);
       } else {
         if (response.code == 'ACCOUNT_NOT_VERIFIED' && response.email != null) {
           pushRoute(
