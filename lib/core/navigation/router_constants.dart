@@ -9,6 +9,14 @@ class AppRoutes {
 
   // App-level
   static const String home = '/home';
+  static const String adminDashboard = '/admin/dashboard';
+  static const String adminOrders = '/admin/orders';
+  static const String adminProducts = '/admin/products';
+  static const String adminUsers = '/admin/users';
+  static const String adminCoupons = '/admin/coupons';
+  static const String adminReviews = '/admin/reviews';
+  static const String adminReports = '/admin/reports';
+  static const String adminProfile = '/admin/profile';
   static const String error = '/not-found';
   static const String systemError = '/system-error';
   static const String forceUpdate = '/force-update';
