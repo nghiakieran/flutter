@@ -1,21 +1,50 @@
-# app_manager
+# LS Admin App (Flutter)
 
-A new Flutter project.
+Ứng dụng quản trị cho hệ thống LaptopStore, xây bằng Flutter, tập trung vào các tác vụ vận hành dành cho admin.
 
-## Getting Started
+## Chức năng chính
 
-This project is a starting point for a Flutter application.
+- Xác thực tài khoản admin: đăng nhập, đăng ký, quên mật khẩu, xác thực OTP, đặt lại mật khẩu.
+- Dashboard tổng quan: thống kê nhanh và biểu đồ trạng thái đơn hàng.
+- Quản lý đơn hàng: xem danh sách, lọc/trạng thái, cập nhật trạng thái đơn.
+- Quản lý sản phẩm: CRUD sản phẩm và các thông tin liên quan.
+- Quản lý người dùng, đánh giá, mã giảm giá.
+- Báo cáo và hồ sơ admin.
+- Upload ảnh lên Cloudinary cho luồng quản trị nội dung.
 
-A few resources to get you started if this is your first Flutter project:
+## Cấu trúc thư mục
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+- `lib/features/auth`: màn hình và luồng xác thực.
+- `lib/features/admin`: dashboard và các trang quản trị.
+- `lib/core/navigation`: router, hằng số route, shell cho admin.
+- `lib/core/network`: API client, endpoint, chuẩn hóa kết quả gọi API.
+- `lib/core/services`: dịch vụ dùng chung (storage, media upload, snackbar...).
+- `lib/core/di`: cấu hình dependency injection.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Cấu hình môi trường
 
-# run app:
-- Flutter clean
-- Flutter pub get
-- flutter run --dart-define-from-file=env/dev.json
+Project dùng `String.fromEnvironment`, nên chạy bằng file define:
+
+1. Tạo file `env/dev.json`:
+
+```json
+{
+  "ENV": "dev",
+  "CLOUDINARY_CLOUD_NAME": "your_cloud_name",
+  "CLOUDINARY_UPLOAD_PRESET": "your_upload_preset"
+}
+```
+
+2. Chạy app:
+
+```bash
+flutter run --dart-define-from-file=env/dev.json
+```
+
+## Cài đặt và chạy local
+
+```bash
+flutter clean
+flutter pub get
+flutter run --dart-define-from-file=env/dev.json
+```
