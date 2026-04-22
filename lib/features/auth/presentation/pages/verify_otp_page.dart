@@ -1,5 +1,7 @@
 import 'dart:async';
 
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:app_manager/core/navigation/router_helper.dart';
 
@@ -75,6 +77,7 @@ class _VerifyOtpPageState extends State<VerifyOtpPage> {
       if (!mounted) return;
 
       if (response.success) {
+        if (!context.mounted) return;
         if (response.token != null) {
           await getIt<ITokenStorage>().storeTokens(
             accessToken: response.token!,
@@ -82,14 +85,18 @@ class _VerifyOtpPageState extends State<VerifyOtpPage> {
           );
           getIt<ApiClient>().setToken(response.token!);
         }
+        final currentContext = SnackBarService.scaffoldKey.currentContext;
+        if (currentContext == null) return;
         showAuthSuccessBottomSheet(
-          context: context,
+          context: currentContext,
           title: 'Đăng ký thành công',
           subtitle:
               'Tài khoản của bạn đã được xác minh. Bạn có thể bắt đầu sử dụng ứng dụng ngay bây giờ.',
-          buttonText: 'Đi tới Trang chủ',
+          buttonText: 'Đi tới Dashboard',
           onButtonPressed: () {
-            goRoute(context, AppRoutes.home);
+            final navContext = SnackBarService.scaffoldKey.currentContext;
+            if (navContext == null) return;
+            goRoute(navContext, AppRoutes.adminDashboard);
           },
         );
       } else {
