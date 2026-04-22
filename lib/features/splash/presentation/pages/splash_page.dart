@@ -1,7 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:app_manager/core/di/di_container.dart';
+import 'package:app_manager/core/network/api_client.dart';
 import 'package:app_manager/core/navigation/router_helper.dart';
+import 'package:app_manager/core/services/storage/i_token_storage.dart';
+import 'package:app_manager/features/auth/data/repositories/auth_repository.dart';
 
 import 'package:app_manager/constants/app_colors.dart';
 import 'package:app_manager/core/navigation/router_constants.dart';
@@ -19,9 +23,41 @@ class _SplashPageState extends State<SplashPage> {
   @override
   void initState() {
     super.initState();
-    _timer = Timer(const Duration(seconds: 10), () {
-      if (!mounted) return;
-      goRoute(context, AppRoutes.login);
+    _bootstrapAuth();
+  }
+
+  Future<void> _bootstrapAuth() async {
+    _timer = Timer(const Duration(milliseconds: 1200), () async {
+      final tokenStorage = getIt<ITokenStorage>();
+      final apiClient = getIt<ApiClient>();
+      final authRepository = getIt<IAuthRepository>();
+
+      final accessToken = await tokenStorage.getAccessToken();
+      if (accessToken == null || accessToken.isEmpty) {
+        if (!mounted) return;
+        goRoute(context, AppRoutes.login);
+        return;
+      }
+
+      apiClient.setToken(accessToken);
+
+      try {
+        final me = await authRepository.getCurrentUser();
+        if (!mounted) return;
+        if (me.success) {
+          goRoute(context, AppRoutes.adminDashboard);
+        } else {
+          await tokenStorage.clearTokens();
+          apiClient.clearToken();
+          if (!mounted) return;
+          goRoute(context, AppRoutes.login);
+        }
+      } catch (_) {
+        await tokenStorage.clearTokens();
+        apiClient.clearToken();
+        if (!mounted) return;
+        goRoute(context, AppRoutes.login);
+      }
     });
   }
 
@@ -63,7 +99,7 @@ class _SplashPageState extends State<SplashPage> {
                 ),
                 const SizedBox(height: 20),
                 const Text(
-                  'Tự động chuyển trang sau 10s...',
+                  'Đang kiểm tra phiên đăng nhập...',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: Colors.white70,

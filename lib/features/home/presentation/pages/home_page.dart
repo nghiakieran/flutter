@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 
 import 'package:app_manager/constants/app_colors.dart';
+import 'package:app_manager/core/navigation/router_constants.dart';
+import 'package:app_manager/core/navigation/router_helper.dart';
+import 'package:app_manager/shared/ui_kit/app_button.dart';
 import 'package:app_manager/shared/widgets/error-empty/empty_state_widget.dart';
 
 class HomePage extends StatelessWidget {
@@ -24,6 +27,11 @@ class HomePage extends StatelessWidget {
             message:
                 'Xem trước giao diện. Hãy kết nối logic JWT/phiên đăng nhập để thay thế màn Home mẫu này.',
             action: const SizedBox.shrink(),
+          ),
+          const SizedBox(height: 16),
+          AppButton(
+            text: 'Đi tới Admin Dashboard',
+            onPressed: () => pushRoute(context, AppRoutes.adminDashboard),
           ),
         ],
       ),
