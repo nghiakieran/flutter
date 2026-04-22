@@ -86,22 +86,58 @@ Tất cả route admin đi qua middleware `authenticate` + `requireAdmin`.
 
 ## 7) Cấu trúc chính
 
+Project tổ chức theo hướng **feature-first** kết hợp **BLoC + Repository pattern** để dễ scale và dễ maintain.
+
+### 7.1 Nguyên tắc tổ chức
+
+- `core/`: các thành phần dùng chung toàn app, không phụ thuộc feature cụ thể.
+- `features/`: chia theo nghiệp vụ (`auth`, `admin`), mỗi feature tự chứa data + presentation.
+- `shared/`: UI component tái sử dụng giữa nhiều feature.
+- Luồng dữ liệu chuẩn: `UI (Page/Widget)` -> `Bloc(Event)` -> `Repository` -> `ApiClient` -> `Bloc(State)` -> `UI`.
+
+### 7.2 Cấu trúc thư mục chi tiết
+
 ```text
 flutter/
 ├── lib/
 │   ├── core/
-│   │   ├── navigation/      # Router, shell, constants
-│   │   ├── network/         # Api client/endpoints/result
-│   │   ├── services/        # Storage, media upload, snackbar...
-│   │   └── di/              # Dependency injection
+│   │   ├── navigation/      # Router, shell, route constants
+│   │   ├── network/         # ApiClient (Dio), endpoints, ApiResult/ApiStatus
+│   │   ├── services/        # Base service, local storage, media upload, snack bar
+│   │   ├── environment/     # App environment (dev/prod/testing)
+│   │   ├── blocs/           # Base bloc abstractions
+│   │   └── di/              # GetIt container, register repository/bloc theo module
 │   ├── features/
-│   │   ├── auth/            # Login, OTP, reset password
-│   │   └── admin/           # Dashboard + các module quản trị
-│   └── shared/              # Widget dùng chung
+│   │   ├── auth/
+│   │   │   ├── data/
+│   │   │   │   ├── models/          # DTO/auth models
+│   │   │   │   └── repositories/    # Auth repository gọi API
+│   │   │   └── presentation/
+│   │   │       └── pages/           # Login/Register/OTP/Forgot/Reset
+│   │   └── admin/
+│   │       ├── data/
+│   │       │   ├── models/          # Dashboard/order/product/coupon/user/review/report models
+│   │       │   └── repositories/    # Repository từng module admin
+│   │       └── presentation/
+│   │           ├── bloc/            # Event/State/Bloc cho từng module
+│   │           ├── pages/           # Màn quản trị
+│   │           └── widgets/         # Widget chuyên biệt cho admin
+│   ├── shared/
+│   │   ├── ui_kit/                  # Button, style primitives
+│   │   └── widgets/                 # Loading/empty/OTP và widget tái sử dụng
+│   ├── constants/                   # Hằng số toàn app
+│   └── theme/                       # App theme, màu sắc, typography
 ├── env/
 │   └── dev.json
 └── pubspec.yaml
 ```
+
+### 7.3 Điểm mạnh kiến trúc hiện tại
+
+- Tách lớp rõ giữa `presentation` và `data`, giúp code dễ test và thay backend dễ hơn.
+- BLoC theo module nghiệp vụ nên state management rõ ràng, tránh logic dồn trong UI.
+- `core/network` + `core/services` tái sử dụng tốt, giảm trùng lặp khi thêm feature mới.
+- `di_container` tập trung giúp kiểm soát vòng đời dependency nhất quán.
 
 ## 8) Setup local
 
