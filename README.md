@@ -115,13 +115,15 @@ flutter/
 │   │   │   └── presentation/
 │   │   │       └── pages/           # Login/Register/OTP/Forgot/Reset
 │   │   └── admin/
-│   │       ├── data/
-│   │       │   ├── models/          # Dashboard/order/product/coupon/user/review/report models
-│   │       │   └── repositories/    # Repository từng module admin
-│   │       └── presentation/
-│   │           ├── bloc/            # Event/State/Bloc cho từng module
-│   │           ├── pages/           # Màn quản trị
-│   │           └── widgets/         # Widget chuyên biệt cho admin
+│   │       ├── dashboard/           # module dashboard (models/repository/bloc/page/widgets)
+│   │       ├── orders/              # module quản lý đơn hàng
+│   │       ├── products/            # module quản lý sản phẩm + brand
+│   │       ├── coupons/             # module quản lý mã giảm giá
+│   │       ├── reviews/             # module duyệt/phản hồi đánh giá
+│   │       ├── users/               # module quản lý user/staff
+│   │       ├── reports/             # module báo cáo & export
+│   │       ├── profile/             # module hồ sơ admin
+│   │       └── shared/              # widget dùng chung giữa các module admin
 │   ├── shared/
 │   │   ├── ui_kit/                  # Button, style primitives
 │   │   └── widgets/                 # Loading/empty/OTP và widget tái sử dụng

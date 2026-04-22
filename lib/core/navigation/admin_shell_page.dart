@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:app_manager/features/admin/presentation/widgets/admin_bottom_navigation.dart';
+import 'package:app_manager/features/admin/shared/presentation/widgets/admin_bottom_navigation.dart';
 
 class AdminShellPage extends StatelessWidget {
   const AdminShellPage({
