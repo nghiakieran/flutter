@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:app_manager/core/services/snack_bar_service.dart';
 import 'package:flutter/material.dart';
 
 import 'package:app_manager/constants/app_colors.dart';
@@ -79,6 +80,10 @@ class _LoginPageState extends State<LoginPage> {
         goRoute(context, AppRoutes.adminDashboard);
       } else {
         if (response.code == 'ACCOUNT_NOT_VERIFIED' && response.email != null) {
+          SnackBarService.showSnackBar(
+            content: response.message,
+            status: StatusSnackBar.success,
+          );
           pushRoute(
             context,
             AppRoutes.verifyOtp,

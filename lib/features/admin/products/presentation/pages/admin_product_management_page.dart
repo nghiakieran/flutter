@@ -50,56 +50,83 @@ class _AdminProductManagementView extends StatelessWidget {
     required String imageUrl,
     required String emptyLabel,
   }) {
-    if (imageUrl.trim().isEmpty) {
-      return Container(
-        width: double.infinity,
-        height: 124,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: const Color(0xFFF8FAFC),
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: AppColors.border),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.image_outlined, color: Colors.black38, size: 20),
-            const SizedBox(height: 6),
-            Text(
-              emptyLabel,
-              style: const TextStyle(color: Colors.black45, fontSize: 12),
-            ),
-          ],
-        ),
-      );
-    }
+    final hasImage = imageUrl.trim().isNotEmpty;
     return Container(
       width: double.infinity,
-      height: 124,
-      alignment: Alignment.center,
+      height: 160,
       decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: const Color(0xFFBFDBFE)),
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(10),
-        child: SizedBox(
-          width: 96,
-          height: 96,
-          child: Image.network(
-            imageUrl,
-            fit: BoxFit.cover,
-            errorBuilder: (_, _, _) => const Center(
-              child: Text(
-                'URL ảnh không hợp lệ',
-                textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.redAccent, fontSize: 12),
-              ),
-            ),
-          ),
+        color: const Color(0xFFF1F5F9),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: hasImage
+              ? AppColors.primary.withOpacity(0.3)
+              : AppColors.border,
+          width: 1.5,
         ),
       ),
+      child: hasImage
+          ? Stack(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: Center(
+                    child: Image.network(
+                      imageUrl,
+                      fit: BoxFit.contain,
+                      errorBuilder: (_, _, _) => const Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.error_outline, color: Colors.redAccent),
+                          SizedBox(height: 4),
+                          Text(
+                            'Lỗi tải ảnh',
+                            style: TextStyle(
+                              color: Colors.redAccent,
+                              fontSize: 11,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                Positioned(
+                  top: 8,
+                  right: 8,
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.check_circle,
+                      color: Colors.green,
+                      size: 20,
+                    ),
+                  ),
+                ),
+              ],
+            )
+          : Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.add_photo_alternate_outlined,
+                  color: Colors.black26,
+                  size: 40,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  emptyLabel,
+                  style: const TextStyle(
+                    color: Colors.black38,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
     );
   }
 
@@ -112,20 +139,22 @@ class _AdminProductManagementView extends StatelessWidget {
       builder: (ctx) => AlertDialog(
         title: const Text('Xác nhận xóa'),
         content: Text('Bạn có chắc muốn xóa $itemLabel?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Hủy'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.of(ctx).pop(true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.redAccent,
-              foregroundColor: Colors.white,
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(false),
+              child: const Text('Hủy', style: TextStyle(fontSize: 14)),
             ),
-            child: const Text('Xóa'),
-          ),
-        ],
+            ElevatedButton(
+              onPressed: () => Navigator.of(ctx).pop(true),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.redAccent,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              ),
+              child: const Text('Xóa', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+            ),
+          ],
       ),
     );
     return result == true;
@@ -144,43 +173,115 @@ class _AdminProductManagementView extends StatelessWidget {
     );
     final imageCtrl = TextEditingController(text: product?.image ?? '');
     final isEdit = product != null;
+
     await showDialog<void>(
       context: context,
+      barrierDismissible: false,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setLocalState) => AlertDialog(
-          title: Text(isEdit ? 'Sửa sản phẩm' : 'Tạo sản phẩm'),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: nameCtrl,
-                  decoration: const InputDecoration(labelText: 'Tên'),
-                ),
-                TextField(
-                  controller: priceCtrl,
-                  decoration: const InputDecoration(labelText: 'Giá'),
-                  keyboardType: TextInputType.number,
-                ),
-                TextField(
-                  controller: stockCtrl,
-                  decoration: const InputDecoration(labelText: 'Tồn kho'),
-                  keyboardType: TextInputType.number,
-                ),
-                TextField(
-                  controller: imageCtrl,
-                  decoration: const InputDecoration(labelText: 'URL ảnh'),
-                  onChanged: (_) => setLocalState(() {}),
-                ),
-                const SizedBox(height: 8),
-                _buildImagePreview(
-                  imageUrl: imageCtrl.text.trim(),
-                  emptyLabel: 'Chưa có ảnh xem trước',
-                ),
-                const SizedBox(height: 8),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: OutlinedButton.icon(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
+          title: Row(
+            children: [
+              Icon(
+                isEdit ? Icons.edit_note : Icons.add_box_outlined,
+                color: AppColors.primary,
+              ),
+              const SizedBox(width: 12),
+              Text(
+                isEdit ? 'Sửa sản phẩm' : 'Tạo sản phẩm',
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+          content: SizedBox(
+            width: MediaQuery.of(context).size.width * 0.9,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: nameCtrl,
+                    style: const TextStyle(fontSize: 15),
+                    decoration: InputDecoration(
+                      isDense: true,
+                      labelText: 'Tên sản phẩm',
+                      labelStyle: const TextStyle(fontSize: 14),
+                      hintText: 'Nhập tên...',
+                      hintStyle: const TextStyle(fontSize: 14),
+                      prefixIcon: const Icon(Icons.shopping_bag_outlined, size: 20),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: priceCtrl,
+                          style: const TextStyle(fontSize: 15),
+                          decoration: InputDecoration(
+                            isDense: true,
+                            labelText: 'Giá',
+                            labelStyle: const TextStyle(fontSize: 14),
+                            hintText: '0',
+                            hintStyle: const TextStyle(fontSize: 14),
+                            suffixText: 'đ',
+                            prefixIcon: const Icon(Icons.payments_outlined, size: 20),
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                          ),
+                          keyboardType: TextInputType.number,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: TextField(
+                          controller: stockCtrl,
+                          style: const TextStyle(fontSize: 15),
+                          decoration: InputDecoration(
+                            isDense: true,
+                            labelText: 'Tồn kho',
+                            labelStyle: const TextStyle(fontSize: 14),
+                            hintText: '0',
+                            hintStyle: const TextStyle(fontSize: 14),
+                            prefixIcon: const Icon(Icons.inventory_2_outlined, size: 20),
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                          ),
+                          keyboardType: TextInputType.number,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: imageCtrl,
+                    style: const TextStyle(fontSize: 15),
+                    decoration: InputDecoration(
+                      isDense: true,
+                      labelText: 'URL ảnh',
+                      labelStyle: const TextStyle(fontSize: 14),
+                      hintText: 'http://...',
+                      hintStyle: const TextStyle(fontSize: 14),
+                      prefixIcon: const Icon(Icons.link, size: 20),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                    ),
+                    onChanged: (_) => setLocalState(() {}),
+                  ),
+                  const SizedBox(height: 20),
+                  _buildImagePreview(
+                    imageUrl: imageCtrl.text.trim(),
+                    emptyLabel: 'Chưa có ảnh xem trước',
+                  ),
+                  const SizedBox(height: 12),
+                  ElevatedButton.icon(
                     onPressed: () async {
                       try {
                         final picked = await _imagePicker.pickImage(
@@ -194,32 +295,40 @@ class _AdminProductManagementView extends StatelessWidget {
                         );
                         imageCtrl.text = url;
                         setLocalState(() {});
-                        if (ctx.mounted) {
-                          ScaffoldMessenger.of(ctx).showSnackBar(
-                            const SnackBar(
-                              content: Text('Tải ảnh sản phẩm thành công'),
-                            ),
-                          );
-                        }
                       } catch (e) {
                         if (!ctx.mounted) return;
-                        ScaffoldMessenger.of(ctx).showSnackBar(
-                          SnackBar(content: Text('Upload ảnh thất bại: $e')),
-                        );
+                        ScaffoldMessenger.of(
+                          ctx,
+                        ).showSnackBar(SnackBar(content: Text('Lỗi: $e')));
                       }
                     },
-                    icon: const Icon(Icons.cloud_upload_outlined),
-                    label: const Text('Chọn ảnh & tải lên Cloudinary'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: AppColors.primary,
+                      side: const BorderSide(color: AppColors.primary),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                    ),
+                    icon: const Icon(Icons.cloud_upload, size: 20),
+                    label: const Text('Chọn ảnh & tải lên Cloudinary', style: TextStyle(fontSize: 14)),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
+          actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(ctx).pop(),
-              child: const Text('Hủy'),
+              style: TextButton.styleFrom(foregroundColor: Colors.grey[700]),
+              child: const Text(
+                'Hủy',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+              ),
             ),
+            const SizedBox(width: 8),
             ElevatedButton(
               onPressed: () {
                 final name = nameCtrl.text.trim();
@@ -248,7 +357,21 @@ class _AdminProductManagementView extends StatelessWidget {
                 }
                 Navigator.of(ctx).pop();
               },
-              child: Text(isEdit ? 'Lưu' : 'Tạo'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 10,
+                ),
+              ),
+              child: Text(
+                isEdit ? 'Lưu' : 'Tạo',
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+              ),
             ),
           ],
         ),
@@ -263,73 +386,118 @@ class _AdminProductManagementView extends StatelessWidget {
     final nameCtrl = TextEditingController(text: brand?.name ?? '');
     final logoCtrl = TextEditingController(text: brand?.image ?? '');
     final isEdit = brand != null;
+
     await showDialog<void>(
       context: context,
+      barrierDismissible: false,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setLocalState) => AlertDialog(
-          title: Text(isEdit ? 'Sửa thương hiệu' : 'Tạo thương hiệu'),
-          content: SingleChildScrollView(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
+          title: Row(
+            children: [
+              Icon(
+                isEdit ? Icons.edit_note : Icons.add_business_outlined,
+                color: AppColors.primary,
+              ),
+              const SizedBox(width: 12),
+              Text(
+                isEdit ? 'Sửa thương hiệu' : 'Tạo thương hiệu',
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+          content: SizedBox(
+            width: MediaQuery.of(context).size.width * 0.9,
             child: Column(
               mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                const SizedBox(height: 16),
                 TextField(
                   controller: nameCtrl,
-                  decoration: const InputDecoration(
+                  style: const TextStyle(fontSize: 15),
+                  decoration: InputDecoration(
+                    isDense: true,
                     labelText: 'Tên thương hiệu',
+                    labelStyle: const TextStyle(fontSize: 14),
+                    hintText: 'Nhập tên...',
+                    hintStyle: const TextStyle(fontSize: 14),
+                    prefixIcon: const Icon(Icons.business_outlined, size: 20),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                   ),
                 ),
+                const SizedBox(height: 16),
                 TextField(
                   controller: logoCtrl,
-                  decoration: const InputDecoration(labelText: 'URL logo'),
+                  style: const TextStyle(fontSize: 15),
+                  decoration: InputDecoration(
+                    isDense: true,
+                    labelText: 'URL logo',
+                    labelStyle: const TextStyle(fontSize: 14),
+                    hintText: 'http://...',
+                    hintStyle: const TextStyle(fontSize: 14),
+                    prefixIcon: const Icon(Icons.link, size: 20),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                  ),
                   onChanged: (_) => setLocalState(() {}),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 20),
                 _buildImagePreview(
                   imageUrl: logoCtrl.text.trim(),
                   emptyLabel: 'Chưa có logo xem trước',
                 ),
-                const SizedBox(height: 8),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: OutlinedButton.icon(
-                    onPressed: () async {
-                      try {
-                        final picked = await _imagePicker.pickImage(
-                          source: ImageSource.gallery,
-                          imageQuality: 85,
-                        );
-                        if (picked == null) return;
-                        final url = await CloudinaryUploadService.uploadImage(
-                          File(picked.path),
-                        );
-                        logoCtrl.text = url;
-                        setLocalState(() {});
-                        if (ctx.mounted) {
-                          ScaffoldMessenger.of(ctx).showSnackBar(
-                            const SnackBar(
-                              content: Text('Tải logo thương hiệu thành công'),
-                            ),
-                          );
-                        }
-                      } catch (e) {
-                        if (!ctx.mounted) return;
-                        ScaffoldMessenger.of(ctx).showSnackBar(
-                          SnackBar(content: Text('Upload logo thất bại: $e')),
-                        );
-                      }
-                    },
-                    icon: const Icon(Icons.cloud_upload_outlined),
-                    label: const Text('Chọn logo & tải lên Cloudinary'),
+                const SizedBox(height: 12),
+                ElevatedButton.icon(
+                  onPressed: () async {
+                    try {
+                      final picked = await _imagePicker.pickImage(
+                        source: ImageSource.gallery,
+                        imageQuality: 85,
+                      );
+                      if (picked == null) return;
+                      final url = await CloudinaryUploadService.uploadImage(
+                        File(picked.path),
+                      );
+                      logoCtrl.text = url;
+                      setLocalState(() {});
+                    } catch (e) {
+                      if (!ctx.mounted) return;
+                      ScaffoldMessenger.of(
+                        ctx,
+                      ).showSnackBar(SnackBar(content: Text('Lỗi: $e')));
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: AppColors.primary,
+                    side: const BorderSide(color: AppColors.primary),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 10),
                   ),
+                  icon: const Icon(Icons.cloud_upload, size: 20),
+                  label: const Text('Chọn logo & tải lên Cloudinary', style: TextStyle(fontSize: 14)),
                 ),
               ],
             ),
           ),
+          actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(ctx).pop(),
-              child: const Text('Hủy'),
+              style: TextButton.styleFrom(foregroundColor: Colors.grey[700]),
+              child: const Text(
+                'Hủy',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+              ),
             ),
+            const SizedBox(width: 8),
             ElevatedButton(
               onPressed: () {
                 final image = logoCtrl.text.trim();
@@ -351,7 +519,21 @@ class _AdminProductManagementView extends StatelessWidget {
                 }
                 Navigator.of(ctx).pop();
               },
-              child: Text(isEdit ? 'Lưu' : 'Tạo'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 10,
+                ),
+              ),
+              child: Text(
+                isEdit ? 'Lưu' : 'Tạo',
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+              ),
             ),
           ],
         ),

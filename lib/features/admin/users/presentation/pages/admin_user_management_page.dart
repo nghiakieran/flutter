@@ -49,15 +49,17 @@ class _AdminUserManagementView extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Hủy'),
+            child: const Text('Hủy', style: TextStyle(fontSize: 14)),
           ),
           ElevatedButton(
             onPressed: () => Navigator.of(ctx).pop(true),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.redAccent,
               foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             ),
-            child: const Text('Xóa'),
+            child: const Text('Xóa', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -74,64 +76,137 @@ class _AdminUserManagementView extends StatelessWidget {
     final phoneCtrl = TextEditingController(text: staff?.phone ?? '');
     final passCtrl = TextEditingController();
     final isEdit = staff != null;
+
     await showDialog<void>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(isEdit ? 'Sửa nhân viên' : 'Tạo nhân viên'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: nameCtrl,
-              decoration: const InputDecoration(labelText: 'Tên'),
+      barrierDismissible: false,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setLocalState) => AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
+          title: Row(
+            children: [
+              Icon(isEdit ? Icons.badge_outlined : Icons.person_add_alt_1_outlined, color: AppColors.primary),
+              const SizedBox(width: 12),
+              Text(isEdit ? 'Sửa nhân viên' : 'Tạo nhân viên', style: const TextStyle(fontWeight: FontWeight.bold)),
+            ],
+          ),
+          content: SizedBox(
+            width: MediaQuery.of(context).size.width * 0.9,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: nameCtrl,
+                    style: const TextStyle(fontSize: 15),
+                    decoration: InputDecoration(
+                      isDense: true,
+                      labelText: 'Tên nhân viên',
+                      labelStyle: const TextStyle(fontSize: 14),
+                      hintText: 'Nhập họ tên...',
+                      hintStyle: const TextStyle(fontSize: 14),
+                      prefixIcon: const Icon(Icons.person_outline, size: 20),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                    ),
+                  ),
+                  if (!isEdit) ...[
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: emailCtrl,
+                      style: const TextStyle(fontSize: 15),
+                      decoration: InputDecoration(
+                        isDense: true,
+                        labelText: 'Email',
+                        labelStyle: const TextStyle(fontSize: 14),
+                        hintText: 'example@mail.com',
+                        hintStyle: const TextStyle(fontSize: 14),
+                        prefixIcon: const Icon(Icons.email_outlined, size: 20),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                      ),
+                      keyboardType: TextInputType.emailAddress,
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: passCtrl,
+                      style: const TextStyle(fontSize: 15),
+                      decoration: InputDecoration(
+                        isDense: true,
+                        labelText: 'Mật khẩu',
+                        labelStyle: const TextStyle(fontSize: 14),
+                        hintText: '••••••••',
+                        hintStyle: const TextStyle(fontSize: 14),
+                        prefixIcon: const Icon(Icons.lock_outline, size: 20),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                      ),
+                      obscureText: true,
+                    ),
+                  ],
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: phoneCtrl,
+                    style: const TextStyle(fontSize: 15),
+                    decoration: InputDecoration(
+                      isDense: true,
+                      labelText: 'Số điện thoại',
+                      labelStyle: const TextStyle(fontSize: 14),
+                      hintText: '0xxx...',
+                      hintStyle: const TextStyle(fontSize: 14),
+                      prefixIcon: const Icon(Icons.phone_outlined, size: 20),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                    ),
+                    keyboardType: TextInputType.phone,
+                  ),
+                ],
+              ),
             ),
-            if (!isEdit)
-              TextField(
-                controller: emailCtrl,
-                decoration: const InputDecoration(labelText: 'Email'),
+          ),
+          actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(),
+              style: TextButton.styleFrom(foregroundColor: Colors.grey[700]),
+              child: const Text('Hủy', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+            ),
+            const SizedBox(width: 8),
+            ElevatedButton(
+              onPressed: () {
+                if (isEdit) {
+                  context.read<AdminUserBloc>().add(
+                    UpdateAdminStaffRequested(
+                      id: staff.id,
+                      name: nameCtrl.text.trim(),
+                      phone: phoneCtrl.text.trim(),
+                    ),
+                  );
+                } else {
+                  context.read<AdminUserBloc>().add(
+                    CreateAdminStaffRequested(
+                      name: nameCtrl.text.trim(),
+                      email: emailCtrl.text.trim(),
+                      password: passCtrl.text.trim(),
+                      phone: phoneCtrl.text.trim(),
+                    ),
+                  );
+                }
+                Navigator.of(ctx).pop();
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
               ),
-            if (!isEdit)
-              TextField(
-                controller: passCtrl,
-                decoration: const InputDecoration(labelText: 'Mật khẩu'),
-                obscureText: true,
-              ),
-            TextField(
-              controller: phoneCtrl,
-              decoration: const InputDecoration(labelText: 'Số điện thoại'),
+              child: Text(isEdit ? 'Lưu' : 'Tạo', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
             ),
           ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('Hủy'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              if (isEdit) {
-                context.read<AdminUserBloc>().add(
-                  UpdateAdminStaffRequested(
-                    id: staff.id,
-                    name: nameCtrl.text.trim(),
-                    phone: phoneCtrl.text.trim(),
-                  ),
-                );
-              } else {
-                context.read<AdminUserBloc>().add(
-                  CreateAdminStaffRequested(
-                    name: nameCtrl.text.trim(),
-                    email: emailCtrl.text.trim(),
-                    password: passCtrl.text.trim(),
-                    phone: phoneCtrl.text.trim(),
-                  ),
-                );
-              }
-              Navigator.of(ctx).pop();
-            },
-            child: Text(isEdit ? 'Lưu' : 'Tạo'),
-          ),
-        ],
       ),
     );
   }

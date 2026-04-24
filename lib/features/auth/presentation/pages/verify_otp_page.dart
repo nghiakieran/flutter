@@ -85,18 +85,15 @@ class _VerifyOtpPageState extends State<VerifyOtpPage> {
           );
           getIt<ApiClient>().setToken(response.token!);
         }
-        final currentContext = SnackBarService.scaffoldKey.currentContext;
-        if (currentContext == null) return;
+
         showAuthSuccessBottomSheet(
-          context: currentContext,
+          context: context,
           title: 'Đăng ký thành công',
           subtitle:
               'Tài khoản của bạn đã được xác minh. Bạn có thể bắt đầu sử dụng ứng dụng ngay bây giờ.',
           buttonText: 'Đi tới Dashboard',
           onButtonPressed: () {
-            final navContext = SnackBarService.scaffoldKey.currentContext;
-            if (navContext == null) return;
-            goRoute(navContext, AppRoutes.adminDashboard);
+            goRoute(context, AppRoutes.adminDashboard);
           },
         );
       } else {
@@ -206,7 +203,8 @@ class _VerifyOtpPageState extends State<VerifyOtpPage> {
               const SizedBox(height: 14),
               Center(
                 child: Text(
-                  'Nhập mã gồm 6 chữ số để tiếp tục.',
+                  'Mã OTP có hiệu lực trong 5 phút. Nhập mã gồm 6 chữ số để tiếp tục.',
+                  textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: AppColors.textSecondary,
                   ),

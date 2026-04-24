@@ -46,6 +46,7 @@ class AdminUserRepository extends BaseService implements IAdminUserRepository {
           'role': role,
           'page': page,
           'limit': limit,
+          'sort': '-createdAt',
           if (search != null && search.isNotEmpty) 'search': search,
         },
       ),

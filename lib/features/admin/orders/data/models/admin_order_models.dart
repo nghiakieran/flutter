@@ -4,6 +4,10 @@ class AdminOrderItem {
     required this.orderCode,
     required this.status,
     required this.total,
+    required this.subtotal,
+    required this.discount,
+    required this.finalTotal,
+    required this.couponCode,
     required this.receiverName,
     required this.createdAt,
   });
@@ -12,6 +16,10 @@ class AdminOrderItem {
   final String orderCode;
   final String status;
   final double total;
+  final double subtotal;
+  final double discount;
+  final double finalTotal;
+  final String? couponCode;
   final String receiverName;
   final DateTime createdAt;
 
@@ -21,6 +29,10 @@ class AdminOrderItem {
       orderCode: json['orderCode']?.toString() ?? '',
       status: json['status']?.toString() ?? 'PENDING',
       total: _asDouble(json['total']),
+      subtotal: _asDouble(json['subtotal']),
+      discount: _asDouble(json['discount']),
+      finalTotal: _asDouble(json['finalTotal'] ?? json['total']),
+      couponCode: json['couponCode']?.toString(),
       receiverName: json['receiverName']?.toString() ?? '',
       createdAt:
           DateTime.tryParse(json['createdAt']?.toString() ?? '') ??

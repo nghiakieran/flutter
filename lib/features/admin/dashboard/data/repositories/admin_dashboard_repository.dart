@@ -18,34 +18,22 @@ class AdminDashboardRepository extends BaseService
   Future<Result<AdminDashboardSummary>> getDashboardSummary() {
     return executeRequest<AdminDashboardSummary>(
       request: () => apiClient.dio.get(ApiEndpoints.adminDashboard),
-      parser: (data) {
-        if (data is Map<String, dynamic>) {
+      parser: (raw) {
+        try {
+          final response = raw is Map<String, dynamic> ? raw : <String, dynamic>{};
+          final data = response['data'] is Map<String, dynamic>
+              ? response['data'] as Map<String, dynamic>
+              : <String, dynamic>{};
           return AdminDashboardSummary.fromJson(data);
-        }
-        if (data is Map) {
-          return AdminDashboardSummary.fromJson(
-            data.map((key, value) => MapEntry(key.toString(), value)),
+        } catch (e) {
+          return const AdminDashboardSummary(
+            todayRevenue: DashboardMetricCard(label: 'Revenue (Day)', value: 0, delta: 0),
+            monthRevenue: DashboardMetricCard(label: 'Revenue (Month)', value: 0, delta: 0),
+            yearRevenue: DashboardMetricCard(label: 'Revenue (Year)', value: 0, delta: 0),
+            totalUsers: 0,
+            orderByStatus: [],
           );
         }
-        return const AdminDashboardSummary(
-          todayRevenue: DashboardMetricCard(
-            label: 'Revenue (Day)',
-            value: 0,
-            delta: 0,
-          ),
-          monthRevenue: DashboardMetricCard(
-            label: 'Revenue (Month)',
-            value: 0,
-            delta: 0,
-          ),
-          yearRevenue: DashboardMetricCard(
-            label: 'Revenue (Year)',
-            value: 0,
-            delta: 0,
-          ),
-          totalUsers: 0,
-          orderByStatus: <DashboardOrderStatusMetric>[],
-        );
       },
       customErrorMessage: 'Unable to load dashboard summary',
     );

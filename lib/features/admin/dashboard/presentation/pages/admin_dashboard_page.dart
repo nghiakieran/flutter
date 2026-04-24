@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 
 import 'package:app_manager/constants/app_colors.dart';
 import 'package:app_manager/core/di/di_container.dart';
@@ -106,7 +107,7 @@ class _AdminDashboardView extends StatelessWidget {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            '${summary.totalUsers}',
+                            NumberFormat.decimalPattern('vi_VN').format(summary.totalUsers),
                             style: Theme.of(context).textTheme.headlineSmall
                                 ?.copyWith(
                                   color: AppColors.textPrimary,

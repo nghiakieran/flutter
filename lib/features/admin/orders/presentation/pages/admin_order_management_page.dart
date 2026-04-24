@@ -145,6 +145,7 @@ class AdminOrderManagementPage extends StatelessWidget {
                     columns: const [
                       DataColumn(label: Text('Mã đơn')),
                       DataColumn(label: Text('Người nhận')),
+                      DataColumn(label: Text('Mã giảm giá')),
                       DataColumn(label: Text('Tổng tiền')),
                       DataColumn(label: Text('Trạng thái')),
                       DataColumn(label: Text('Thao tác')),
@@ -165,37 +166,88 @@ class AdminOrderManagementPage extends StatelessWidget {
                     emptyMessage: 'Không có dữ liệu phù hợp bộ lọc hiện tại.',
                     rowBuilder: (index) {
                       final item = state.items[index];
+                      final displayedTotal = item.finalTotal > 0
+                          ? item.finalTotal
+                          : item.total;
+                      final couponLabel = item.couponCode?.trim().isNotEmpty == true
+                          ? item.couponCode!
+                          : (item.discount > 0
+                              ? '-${item.discount.toStringAsFixed(0)}đ'
+                              : '---');
+
+                      // Logic for valid next statuses
+                      List<String> nextStatuses = [];
+                      if (item.status == 'PENDING') {
+                        nextStatuses = ['CONFIRMED', 'CANCELLED'];
+                      } else if (item.status == 'CONFIRMED') {
+                        nextStatuses = ['SHIPPING', 'CANCELLED'];
+                      } else if (item.status == 'SHIPPING') {
+                        nextStatuses = ['COMPLETED'];
+                      } else if (item.status == 'CANCEL_REQUESTED') {
+                        nextStatuses = ['CANCELLED', 'CONFIRMED'];
+                      }
+
                       return DataRow(
                         cells: [
-                          DataCell(Text(item.orderCode)),
-                          DataCell(Text(item.receiverName)),
-                          DataCell(Text(item.total.toStringAsFixed(0))),
-                          DataCell(Text(_statusLabel(item.status))),
+                          DataCell(Text(item.orderCode, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13))),
+                          DataCell(Text(item.receiverName, maxLines: 1, overflow: TextOverflow.ellipsis)),
                           DataCell(
-                            Wrap(
-                              spacing: 4,
-                              children:
-                                  [
-                                        'CONFIRMED',
-                                        'SHIPPING',
-                                        'COMPLETED',
-                                        'CANCELLED',
-                                      ]
-                                      .map(
-                                        (nextStatus) => OutlinedButton(
-                                          onPressed: () {
-                                            context.read<AdminOrderBloc>().add(
-                                              UpdateAdminOrderStatusRequested(
-                                                orderId: item.id,
-                                                status: nextStatus,
-                                              ),
-                                            );
-                                          },
-                                          child: Text(_statusLabel(nextStatus)),
-                                        ),
-                                      )
-                                      .toList(),
+                            Text(
+                              couponLabel,
+                              style: TextStyle(
+                                color: item.couponCode?.trim().isNotEmpty == true
+                                    ? Colors.deepPurple
+                                    : (item.discount > 0
+                                        ? Colors.orange
+                                        : Colors.grey),
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
+                          ),
+                          DataCell(Text('${displayedTotal.toStringAsFixed(0)}đ', style: const TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold))),
+                          DataCell(
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: _getStatusColor(item.status).withOpacity(0.12),
+                                borderRadius: BorderRadius.circular(6),
+                                border: Border.all(color: _getStatusColor(item.status).withOpacity(0.5)),
+                              ),
+                              child: Text(
+                                _statusLabel(item.status),
+                                style: TextStyle(
+                                  color: _getStatusColor(item.status),
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                          DataCell(
+                            nextStatuses.isEmpty 
+                            ? const Text('---', style: TextStyle(color: Colors.grey))
+                            : PopupMenuButton<String>(
+                                icon: const Icon(Icons.more_vert, color: AppColors.primary),
+                                tooltip: 'Thay đổi trạng thái',
+                                onSelected: (nextStatus) {
+                                  context.read<AdminOrderBloc>().add(
+                                    UpdateAdminOrderStatusRequested(
+                                      orderId: item.id,
+                                      status: nextStatus,
+                                    ),
+                                  );
+                                },
+                                itemBuilder: (context) => nextStatuses.map((status) => PopupMenuItem(
+                                  value: status,
+                                  child: Row(
+                                    children: [
+                                      Icon(_getStatusIcon(status), size: 18, color: _getStatusColor(status)),
+                                      const SizedBox(width: 10),
+                                      Text('Chuyển thành: ${_statusLabel(status)}'),
+                                    ],
+                                  ),
+                                )).toList(),
+                              ),
                           ),
                         ],
                       );
@@ -208,5 +260,27 @@ class AdminOrderManagementPage extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Color _getStatusColor(String status) {
+    switch (status) {
+      case 'PENDING': return Colors.orange;
+      case 'CONFIRMED': return Colors.blue;
+      case 'SHIPPING': return Colors.purple;
+      case 'COMPLETED': return Colors.green;
+      case 'CANCELLED': return Colors.red;
+      case 'CANCEL_REQUESTED': return Colors.deepOrange;
+      default: return Colors.grey;
+    }
+  }
+
+  IconData _getStatusIcon(String status) {
+    switch (status) {
+      case 'CONFIRMED': return Icons.check_circle_outline;
+      case 'SHIPPING': return Icons.local_shipping_outlined;
+      case 'COMPLETED': return Icons.done_all;
+      case 'CANCELLED': return Icons.cancel_outlined;
+      default: return Icons.edit_notifications_outlined;
+    }
   }
 }

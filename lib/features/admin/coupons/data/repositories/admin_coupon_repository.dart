@@ -54,6 +54,7 @@ class AdminCouponRepository extends BaseService
         queryParameters: {
           'page': page,
           'limit': limit,
+          'sort': '-createdAt',
           if (search != null && search.isNotEmpty) 'search': search,
         },
       ),
